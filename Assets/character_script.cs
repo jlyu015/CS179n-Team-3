@@ -9,20 +9,20 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        gameObject.name = "Hop Queen";
     }
 
     // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space)) {
-            myRigidBody.velocity = Vector2.up * 10;
+            myRigidBody.velocity = Vector2.up * 5;
         }
         else if(Input.GetKey(KeyCode.A)) {
-            transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
+            gameObject.transform.localScale = new Vector3(-1, 1, 1);
         }
         else if(Input.GetKey(KeyCode.D)) {
-            transform.Translate(Vector2.right * moveSpeed * Time.deltaTime);
+            gameObject.transform.localScale = new Vector3(1, 1, 1);
         }
         
 
