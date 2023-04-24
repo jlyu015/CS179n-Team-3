@@ -23,7 +23,9 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         gameObject.name = "Hop Queen";
+
     }
 
     // Update is called once per frame
@@ -51,6 +53,7 @@ public class character_script : MonoBehaviour
             renderer.color = Color.red;
         }
         
+
         if (Input.GetKey(KeyCode.Space) && isGrounded && canJump && jumpHeight <= 15) { // charging jump
             jumpHeight += .1f;
         }
