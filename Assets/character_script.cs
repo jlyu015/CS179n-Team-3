@@ -9,6 +9,7 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
 
     }
 
@@ -25,7 +26,6 @@ public class character_script : MonoBehaviour
             transform.Translate(Vector2.right * moveSpeed * Time.deltaTime);
         }
         
-
         
         
         
