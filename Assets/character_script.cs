@@ -44,6 +44,33 @@ public class character_script : MonoBehaviour
             myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
         }
         
+        if(isGrounded) {
+            renderer.color = Color.blue;
+        }
+        else {
+            renderer.color = Color.red;
+        }
+        
+        if (Input.GetKey(KeyCode.Space) && isGrounded && canJump && jumpHeight <= 15) { // charging jump
+            jumpHeight += .1f;
+        }
+
+        if(Input.GetKeyUp(KeyCode.Space)) { // jumping
+            canJump = true;
+            myRigidBody.velocity = new Vector2(moveInput, jumpHeight);
+            jumpHeight = 0;
+        }
+
+
+        if (myRigidBody.velocity.x > 0 && isGrounded) {
+            gameObject.transform.localScale = new Vector3(1, 1, 1);
+            renderer.color = Color.cyan;
+        } 
+        else if (myRigidBody.velocity.x < 0 && isGrounded) {
+            gameObject.transform.localScale = new Vector3(-1, 1, 1);
+            renderer.color = Color.magenta;
+        }
+        
         //Teleport to other side of screen
         Vector3 viewPos = Camera.main.WorldToScreenPoint(transform.position);
         //Left to right
@@ -73,7 +100,11 @@ public class character_script : MonoBehaviour
         }
     }
 
-
+    private void OnDrawGizmos() {
+        Gizmos.color = isGrounded ? Color.blue : Color.red;
+        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - .5f),
+        new Vector2(.9f, .2f));
+    }
 }
 
 
