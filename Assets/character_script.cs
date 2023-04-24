@@ -5,25 +5,43 @@ using UnityEngine;
 public class character_script : MonoBehaviour
 {
     public Rigidbody2D myRigidBody;
+    public LayerMask groundMask;
+    public SpriteRenderer characterRender;
+    public float groundDist = 1f;
     public float moveSpeed = 10;
+    public float buttonTime = 0.5f;
+    public float jumpHeight = 10;
+    public float cancelRate = 100;
+    public float moveInput;
+    
+    private float jumpTime;
+    private bool jumping;
+    private bool jumpCancelled;
+    private bool canJump;
+    private bool isGrounded = false;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        gameObject.name = "Hop Queen";
     }
 
     // Update is called once per frame
     void Update()
     {
         //Movement
-        if(Input.GetKeyDown(KeyCode.Space)) {
-            myRigidBody.velocity = Vector2.up * 10;
-        }
-        else if(Input.GetKey(KeyCode.A)) {
-            transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
-        }
-        else if(Input.GetKey(KeyCode.D)) {
-            transform.Translate(Vector2.right * moveSpeed * Time.deltaTime);
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+        
+        
+        Vector2 wireCubeSize = new Vector2(0.9f, 0.2f);
+        Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSize, 0, groundMask);
+        Debug.Log("isGrounded: " + isGrounded);
+        
+        float horizontalInput = Input.GetAxisRaw("Horizontal"); 
+
+        if(isGrounded && !Input.GetKey(KeyCode.Space)) { // cant walk if charging jump
+            myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
         }
         
         //Teleport to other side of screen
@@ -54,6 +72,9 @@ public class character_script : MonoBehaviour
             transform.position = Camera.main.ScreenToWorldPoint(oppSidePos);;
         }
     }
+
+
 }
+
 
     
