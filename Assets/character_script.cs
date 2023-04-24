@@ -23,7 +23,9 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         gameObject.name = "Hop Queen";
+
     }
 
     // Update is called once per frame
@@ -44,36 +46,41 @@ public class character_script : MonoBehaviour
             myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
         }
         
-        //Teleport to other side of screen
-        Vector3 viewPos = Camera.main.WorldToScreenPoint(transform.position);
-        //Left to right
-        if(viewPos.x < 0) teleport(viewPos,1);
-        //Right to left
-        if(viewPos.x > Screen.width) teleport(viewPos,-1);
+        if(isGrounded) {
+            renderer.color = Color.blue;
+        }
+        else {
+            renderer.color = Color.red;
+        }
+        
+
+        if (Input.GetKey(KeyCode.Space) && isGrounded && canJump && jumpHeight <= 15) { // charging jump
+            jumpHeight += .1f;
+        }
+
+        if(Input.GetKeyUp(KeyCode.Space)) { // jumping
+            canJump = true;
+            myRigidBody.velocity = new Vector2(moveInput, jumpHeight);
+            jumpHeight = 0;
+        }
+
+
+        if (myRigidBody.velocity.x > 0 && isGrounded) {
+            gameObject.transform.localScale = new Vector3(1, 1, 1);
+            renderer.color = Color.cyan;
+        } 
+        else if (myRigidBody.velocity.x < 0 && isGrounded) {
+            gameObject.transform.localScale = new Vector3(-1, 1, 1);
+            renderer.color = Color.magenta;
+        }
         
     }
 
-    //Moves the player from one side of the screen to the other side
-    // 1 = left to right
-    // -1 = right to left
-    void teleport(Vector3 viewPos, int side)
-    {
-
-    //Position of the opposite side
-    Vector3 oppSidePos = new Vector3(Screen.width * side, viewPos.y, viewPos.z);
-
-    //Raidus to check if oppsite side is already occupied by another object
-    float radius = 1500;
-
-    if(!Physics.CheckSphere(oppSidePos, radius))
-        //Player free to teleport to opposite side
-        {
-        //Move player to opposite side after transforming screen position to world position
-            transform.position = Camera.main.ScreenToWorldPoint(oppSidePos);;
-        }
+    private void OnDrawGizmos() {
+        Gizmos.color = isGrounded ? Color.blue : Color.red;
+        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - .5f),
+        new Vector2(.9f, .2f));
     }
-
-
 }
 
 
