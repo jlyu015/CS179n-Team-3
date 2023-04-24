@@ -9,7 +9,7 @@ public class spawnScript : MonoBehaviour
     void Start()
     {
         spawnObject.transform.position = transform.position;
-
+        //
     }
 
     // Update is called once per frame
