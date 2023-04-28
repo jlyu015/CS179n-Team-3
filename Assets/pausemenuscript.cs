@@ -19,7 +19,7 @@ public class pausemenuscript : MonoBehaviour {
             }
             else {
                 PauseGame();
-            }
+            } //
         }
     }
     
