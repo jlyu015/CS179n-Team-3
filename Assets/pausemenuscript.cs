@@ -78,4 +78,9 @@ public class pausemenuscript : MonoBehaviour {
             gameCharacter.transform.position = new Vector3(xPos, yPos, zPos);
         }
     }
+
+    public void ReturnToMainMenu() {
+        SceneManager.LoadScene("mainmenu");
+    }
+
 }
