@@ -86,6 +86,7 @@ public class pausemenuscript : MonoBehaviour {
 
     public void LoadGame() {
         ResumeGame();
+        //resumegame
     }
 
 }
