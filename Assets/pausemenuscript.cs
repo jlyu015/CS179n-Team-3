@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class pausemenuscript : MonoBehaviour {
     public GameObject PauseMenu;
     public GameObject gameCharacter;
     public static bool isPaused;
     public Vector3 savedPosition;
+    public TextMeshProUGUI saveMessage;
 
     void Start() {
         PauseMenu.SetActive(false);
+        saveMessage.gameObject.SetActive(false);
         LoadPosition();
     }
     
@@ -42,11 +45,21 @@ public class pausemenuscript : MonoBehaviour {
         ResumeGame();
     }
 
-        public void SavePosition() {
+    public void SavePosition() {
         PlayerPrefs.SetFloat("xPos", gameCharacter.transform.position.x);
         PlayerPrefs.SetFloat("yPos", gameCharacter.transform.position.y);
         PlayerPrefs.SetFloat("zPos", gameCharacter.transform.position.z);
         PlayerPrefs.Save();
+
+        saveMessage.gameObject.SetActive(true);
+        Invoke("HideMessageDelayed", 0.1f);
+    }
+    private void HideMessageDelayed() {
+        Invoke("HideMessageImmediate", 0.4f);
+    }
+
+    private void HideMessageImmediate() {
+        saveMessage.gameObject.SetActive(false);
     }
 
     public void OnSaveButtonClick() {
