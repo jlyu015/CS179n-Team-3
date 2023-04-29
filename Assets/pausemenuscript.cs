@@ -67,6 +67,10 @@ public class pausemenuscript : MonoBehaviour {
     }   
 
     public void LoadPosition() {
+        if (SceneManager.GetActiveScene().name != "popup") {
+            // Don't load the position if the current scene is the main menu scene
+            return;
+        }
         if (PlayerPrefs.HasKey("xPos") && PlayerPrefs.HasKey("yPos") && PlayerPrefs.HasKey("zPos")) {
             float xPos = PlayerPrefs.GetFloat("xPos");
             float yPos = PlayerPrefs.GetFloat("yPos");
