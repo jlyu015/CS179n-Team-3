@@ -8,8 +8,15 @@ public class spawnScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spawnObject.transform.position = transform.position;
-        //
+        if (PlayerPrefs.HasKey("xPos") && PlayerPrefs.HasKey("yPos") &&PlayerPrefs.HasKey("zPos")) {
+            float xPos = PlayerPrefs.GetFloat("xPos");
+            float yPos = PlayerPrefs.GetFloat("yPos");
+            float zPos = PlayerPrefs.GetFloat("zPos");
+            spawnObject.transform.position = new Vector3(xPos, yPos, zPos);
+        }
+        else {
+            spawnObject.transform.position = transform.position;
+        }
     }
 
     // Update is called once per frame
