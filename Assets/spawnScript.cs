@@ -19,6 +19,10 @@ public class spawnScript : MonoBehaviour
         }
     }
 
+    public void SetDefaultSpawnPosition() {
+        spawnObject.transform.position = transform.position;
+    }
+
     // Update is called once per frame
     void Update()
     {
