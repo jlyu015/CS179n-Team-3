@@ -6,6 +6,8 @@ using UnityEngine;
 public class boundaries : MonoBehaviour
 {
     private Vector2 bounds; // The bounds of the game object based on the camera's position and the screen size
+    private float cameraMoveAmount; // How far the camera will move
+    public Camera mainCamera; // Set the main camera to this
     public float topMargin = 0.1f; // Adjust this value to change how close the object needs to be to the top
     public float sideMargin = 0.1f; // Adjust this value to change how close the object needs to be to the sides
 
@@ -13,7 +15,7 @@ public class boundaries : MonoBehaviour
     void Start()
     {
         // Set the bounds of the game object based on the camera's position and the screen size
-        bounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
+        bounds = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, mainCamera.transform.position.z));
     }
 
     // Update is called once per frame
@@ -21,11 +23,17 @@ public class boundaries : MonoBehaviour
         // Check if the game object has moved out of the screen bounds and teleport it to the other side if necessary
 
         // Get the screen position of the game object
-        Vector3 viewPos = Camera.main.WorldToScreenPoint(transform.position); 
+        Vector3 viewPos = mainCamera.WorldToScreenPoint(transform.position);
+        // The camera will move the by size of its height
+        cameraMoveAmount = 2.0f * mainCamera.orthographicSize;
         // If the game object has moved to the left of the screen, teleport it to the right side
         if(viewPos.x < sideMargin) Teleport(viewPos,1); 
         // If the game object has moved to the right of the screen, teleport it to the left side
         if(viewPos.x > Screen.width - sideMargin) Teleport(viewPos,-1); 
+        // If the game object has moved past the top of the screen, move the camera up
+        if(viewPos.y > Screen.height - topMargin) MoveCamera(viewPos, 1);
+        // If the game object has moved past the bottom of the screen, move the camera down
+        if(viewPos.y < topMargin) MoveCamera(viewPos, -1);
     }
     
     // LateUpdate is called after all Update functions have been called
@@ -38,7 +46,7 @@ public class boundaries : MonoBehaviour
         // Clamp the x-position of the game object within the screen bounds
         viewPos.x = Mathf.Clamp(viewPos.x, bounds.x * -1, bounds.x); 
         // Clamp the y-position of the game object within the screen bounds
-        viewPos.y = Mathf.Clamp(viewPos.y, bounds.y * -1, bounds.y); 
+        //viewPos.y = Mathf.Clamp(viewPos.y, bounds.y * -1, bounds.y); 
         // Set the position of the game object to the clamped position
         transform.position = viewPos; 
     }
@@ -51,14 +59,22 @@ public class boundaries : MonoBehaviour
         // Get the position of the opposite side of the screen
         Vector3 oppositePos = new Vector3(Screen.width * side, screenPos.y, screenPos.z);
 
-        // Check if the object is close to the top of the screen
-        if (screenPos.y > Screen.height - topMargin)
-        {
-            // If the object is close to the top, don't teleport it
-            return;
-        }
-
         // Convert the opposite position to world coordinates and teleport the game object to the opposite side of the screen
-        transform.position = Camera.main.ScreenToWorldPoint(oppositePos);
+        transform.position = mainCamera.ScreenToWorldPoint(oppositePos);
+    }
+
+    //Determines which direction to move the camera
+    void MoveCamera(Vector3 screenPos, int side)
+    {
+        // Move camera up
+        if(side == 1)
+        {
+            mainCamera.transform.position += Vector3.up * cameraMoveAmount; // Move up by move amount
+        }
+        //Move camera down
+        else
+        {
+            mainCamera.transform.position += Vector3.down * cameraMoveAmount; // Move down by move amount
+        }
     }
 }
