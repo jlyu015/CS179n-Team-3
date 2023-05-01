@@ -15,19 +15,17 @@ public class character_script : MonoBehaviour
     public float cancelRate = 100;
     public float dir = 0;
     public float moveInput;
+    public float leftright;
     
     private float jumpTime;
     private bool jumping;
     private bool jumpCancelled;
-    private bool canJump;
     private bool isGrounded = false;
 
     // Start is called before the first frame update
     void Start()
     {
-
         gameObject.name = "Hop Queen";
-
     }
 
     // Update is called once per frame
@@ -35,8 +33,7 @@ public class character_script : MonoBehaviour
     {
         //Movement
         SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-        
-        
+
         Vector2 wireCubeSize = new Vector2(0.9f, 0.2f);
         Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
         isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSize, 0, groundMask);
@@ -44,40 +41,36 @@ public class character_script : MonoBehaviour
         
         float horizontalInput = Input.GetAxisRaw("Horizontal"); 
 
-        if (!isGrounded){
-        } else {
-            if(isGrounded && !Input.GetKey(KeyCode.Space)) { // cant walk if charging jump
-                myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
-            }
-            
-            if(!isGrounded) {
-                renderer.color = Color.red;
-            }
-            
+        if (isGrounded){ //player can only use inputs if not jumping
 
-            if (Input.GetKey(KeyCode.Space) && isGrounded && canJump && jumpHeight <= 12) { // charging jump
+            if (Input.GetKey(KeyCode.Space)) { // charging jump
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
-                jumpHeight += .2f;
+                if (jumpHeight <= 15){
+                    jumpHeight += .3f;
+                }
                 renderer.color = Color.blue;
-            }
-
-            if(Input.GetKeyUp(KeyCode.Space)) { // jumping
-                canJump = true;
+            } else if(Input.GetKeyUp(KeyCode.Space)) { // jumping release
+                if (jumpHeight <= 2){
+                    jumpHeight = 2;
+                }
                 jumpLength += horizontalInput;
                 myRigidBody.velocity = new Vector2(jumpLength+.1f, jumpHeight);
                 jumpHeight = 0;
-            }
-
-
-            if (myRigidBody.velocity.x > 0 && isGrounded) {
+            } else if(myRigidBody.velocity.x > 0) { //moving right
                 gameObject.transform.localScale = new Vector3(1, 1, 1);
                 renderer.color = Color.cyan;
-            } 
-            else if (myRigidBody.velocity.x < 0 && isGrounded) {
+                leftright = 0;      
+            } else if(myRigidBody.velocity.x < 0) { // moving left
                 gameObject.transform.localScale = new Vector3(-1, 1, 1);
                 renderer.color = Color.magenta;
+                leftright = 1;
             }
-            
+            if (!Input.GetKey(KeyCode.Space)){
+                myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
+            }
+
+        } else {
+            renderer.color = Color.red;
         }
     }
 
