@@ -64,7 +64,7 @@ public class character_script : MonoBehaviour
             if(Input.GetKeyUp(KeyCode.Space)) { // jumping
                 canJump = true;
                 jumpLength += horizontalInput;
-                myRigidBody.velocity = new Vector2(jumpLength, jumpHeight);
+                myRigidBody.velocity = new Vector2(jumpLength+.1f, jumpHeight);
                 jumpHeight = 0;
             }
 
