@@ -7,6 +7,7 @@ public class character_script : MonoBehaviour
     public Rigidbody2D myRigidBody;
     public LayerMask groundMask;
     public SpriteRenderer characterRender;
+    public Animator animator;
     public float groundDist = 1f;
     public float moveSpeed = 10;
     public float buttonTime = 0.5f;
@@ -32,7 +33,8 @@ public class character_script : MonoBehaviour
     void Update()
     {
         //Movement
-        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+        characterRender = GetComponentInChildren<SpriteRenderer>();
+        animator =  GetComponentInChildren<Animator>();
 
         Vector2 wireCubeSize = new Vector2(0.9f, 0.2f);
         Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
@@ -42,35 +44,49 @@ public class character_script : MonoBehaviour
         float horizontalInput = Input.GetAxisRaw("Horizontal"); 
 
         if (isGrounded){ //player can only use inputs if not jumping
-
+            animator.SetBool("isGrounded", true);
             if (Input.GetKey(KeyCode.Space)) { // charging jump
+                animator.SetBool("isCharging", true);
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
                 if (jumpHeight <= 15){
                     jumpHeight += .3f;
                 }
-                renderer.color = Color.blue;
+                //characterRender.color = Color.blue;
+
             } else if(Input.GetKeyUp(KeyCode.Space)) { // jumping release
+                animator.SetBool("isCharging", false);
+                animator.SetBool("isGrounded", false);
                 if (jumpHeight <= 2){
                     jumpHeight = 2;
+                }
+                if (myRigidBody.velocity.x != 0){
+                    animator.SetBool("isMoving", true);
                 }
                 jumpLength += horizontalInput;
                 myRigidBody.velocity = new Vector2(jumpLength+.1f, jumpHeight);
                 jumpHeight = 0;
             } else if(myRigidBody.velocity.x > 0) { //moving right
                 gameObject.transform.localScale = new Vector3(1, 1, 1);
-                renderer.color = Color.cyan;
+                animator.SetBool("isMoving", true);
+                //characterRender.color = Color.cyan;
                 leftright = 0;      
             } else if(myRigidBody.velocity.x < 0) { // moving left
                 gameObject.transform.localScale = new Vector3(-1, 1, 1);
-                renderer.color = Color.magenta;
+                //characterRender.color = Color.magenta;
+                animator.SetBool("isMoving", true);
                 leftright = 1;
+            }
+            else {
+                animator.SetBool("isMoving", false);
             }
             if (!Input.GetKey(KeyCode.Space)){
                 myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
             }
 
         } else {
-            renderer.color = Color.red;
+            animator.SetBool("isGrounded", false);
+            animator.SetBool("isCharging", false);
+            //characterRender.color = Color.red;
         }
     }
 
