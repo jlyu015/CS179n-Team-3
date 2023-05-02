@@ -7,6 +7,7 @@ public class character_script : MonoBehaviour
     public Rigidbody2D myRigidBody;
     public LayerMask groundMask;
     public SpriteRenderer characterRender;
+    public PhysicsMaterial2D bounce, normalMat;
     public float groundDist = 1f;
     public float moveSpeed = 10;
     public float buttonTime = 0.5f;
@@ -26,6 +27,7 @@ public class character_script : MonoBehaviour
     void Start()
     {
         gameObject.name = "Hop Queen";
+        myRigidBody.gravityScale = 3;
     }
 
     // Update is called once per frame
@@ -34,7 +36,7 @@ public class character_script : MonoBehaviour
         //Movement
         SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 
-        Vector2 wireCubeSize = new Vector2(0.9f, 0.2f);
+        Vector2 wireCubeSize = new Vector2(0.7f, 0.7f);
         Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
         isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSize, 0, groundMask);
         Debug.Log("isGrounded: " + isGrounded);
@@ -42,25 +44,30 @@ public class character_script : MonoBehaviour
         float horizontalInput = Input.GetAxisRaw("Horizontal"); 
 
         if (isGrounded){ //player can only use inputs if not jumping
-
+            myRigidBody.sharedMaterial = normalMat;
+            renderer.color = Color.blue;
             if (Input.GetKey(KeyCode.Space)) { // charging jump
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
-                if (jumpHeight <= 15){
-                    jumpHeight += .3f;
+                if (jumpHeight <= 12){
+                    jumpHeight += .15f;
                 }
-                renderer.color = Color.blue;
+                
             } else if(Input.GetKeyUp(KeyCode.Space)) { // jumping release
                 if (jumpHeight <= 2){
                     jumpHeight = 2;
                 }
-                jumpLength += horizontalInput;
-                myRigidBody.velocity = new Vector2(jumpLength+.1f, jumpHeight);
+                float jumpVelocityMagnitude = jumpHeight * 0.3f;
+                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
+                myRigidBody.velocity = jumpVelocity;
+                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
+                myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
+
                 jumpHeight = 0;
-            } else if(myRigidBody.velocity.x > 0) { //moving right
+            } else if(myRigidBody.velocity.x > 0 + .001f) { //moving right
                 gameObject.transform.localScale = new Vector3(1, 1, 1);
                 renderer.color = Color.cyan;
                 leftright = 0;      
-            } else if(myRigidBody.velocity.x < 0) { // moving left
+            } else if(myRigidBody.velocity.x < 0 - .001f) { // moving left
                 gameObject.transform.localScale = new Vector3(-1, 1, 1);
                 renderer.color = Color.magenta;
                 leftright = 1;
@@ -71,6 +78,7 @@ public class character_script : MonoBehaviour
 
         } else {
             renderer.color = Color.red;
+            myRigidBody.sharedMaterial = bounce;
         }
     }
 
