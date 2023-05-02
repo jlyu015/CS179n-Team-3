@@ -56,7 +56,7 @@ public class character_script : MonoBehaviour
             myRigidBody.sharedMaterial = normalMat;
 
             animator.SetBool("isGrounded", true);
-
+            animator.SetBool("isFalling", false);
             if (Input.GetKey(KeyCode.Space)) { // charging jump
                 animator.SetBool("isCharging", true);
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
@@ -106,7 +106,10 @@ public class character_script : MonoBehaviour
             if(!hitTop) {
                 myRigidBody.sharedMaterial = bounce;
             }
-            
+            //Character starting to fall 
+            if(myRigidBody.velocity.y <= 0){
+                animator.SetBool("isFalling", true);
+            }
             animator.SetBool("isGrounded", false);
             animator.SetBool("isCharging", false);
             //characterRender.color = Color.red;
