@@ -5,15 +5,21 @@ using UnityEngine;
 // Handles the boundaries of the camera
 public class boundaries : MonoBehaviour
 {
-    private Vector2 bounds; // The bounds of the game object based on the camera's position and the screen size
+    // Private Variables
+    private Vector2 bounds;         // The bounds of the game object based on the camera's position and the screen size
+    private Camera mainCamera;      // Main Camera of game
     private float cameraMoveAmount; // How far the camera will move
-    public Camera mainCamera; // Set the main camera to this
-    public float topMargin = 0.1f; // Adjust this value to change how close the object needs to be to the top
+    // Public Variables
+    public float topMargin = 0.1f;  // Adjust this value to change how close the object needs to be to the top
     public float sideMargin = 0.1f; // Adjust this value to change how close the object needs to be to the sides
 
     // Start is called before the first frame update
     void Start()
     {
+        // This gets the Main Camera from the Scene
+        mainCamera = Camera.main;
+        // This enables Main Camera
+        mainCamera.enabled = true;
         // Set the bounds of the game object based on the camera's position and the screen size
         bounds = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, mainCamera.transform.position.z));
     }
