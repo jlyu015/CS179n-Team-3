@@ -31,6 +31,8 @@ public class character_script : MonoBehaviour
     {
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
+        moveSpeed = 7f;
+        Application.targetFrameRate = 60;
     }
 
     // Update is called once per frame
@@ -64,7 +66,7 @@ public class character_script : MonoBehaviour
                 animator.SetBool("isCharging", true);
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
                 if (jumpHeight <= 11.5){
-                    jumpHeight += .15f;
+                    jumpHeight += .30f;
                 }
                 //characterRender.color = Color.blue;
             } 
