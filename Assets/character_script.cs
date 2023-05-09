@@ -29,6 +29,11 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Game Object's Components, Character is parent, Sprite is child
+        // Sprite is a child so it can be resized without modifying the rigidbody of the charcter
+        characterRender = GetComponentInChildren<SpriteRenderer>(); // Returns child's SpriteRenderer component
+        animator =  GetComponentInChildren<Animator>();             // Returns child's Animator component
+        myRigidBody = GetComponent<Rigidbody2D>();                  // Returns the Rigidbody 2D component
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
         moveSpeed = 7f;
@@ -38,11 +43,6 @@ public class character_script : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Game Object's Components, Character is parent, Sprite is child
-        // Sprite is a child so it can be resized without modifying the rigidbody of the charcter
-        characterRender = GetComponentInChildren<SpriteRenderer>(); // Returns child's SpriteRenderer component
-        animator =  GetComponentInChildren<Animator>();             // Returns child's Animator component
-
         Vector2 wireCubeSize = new Vector2(0.7f, 0.7f);
         Vector2 wireCubeSizeTop = new Vector2(0.5f,0.5f);
         Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
