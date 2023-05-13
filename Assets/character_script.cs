@@ -32,7 +32,7 @@ public class character_script : MonoBehaviour
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
         moveSpeed = 7f;
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 45;
     }
 
     // Update is called once per frame
@@ -49,8 +49,8 @@ public class character_script : MonoBehaviour
         Vector2 wireCubePosTop = new Vector2(transform.position.x,transform.position.y + 0.5f);
         isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSize, 0, groundMask);
         hitTop = Physics2D.OverlapBox(wireCubePosTop, wireCubeSizeTop, 0, groundMask);
-        Debug.Log("isGrounded: " + isGrounded);
-        Debug.Log("hitHead: " + hitTop);
+        // Debug.Log("isGrounded: " + isGrounded);
+        // Debug.Log("hitHead: " + hitTop);
 
         float horizontalInput = Input.GetAxisRaw("Horizontal"); 
 
@@ -75,18 +75,24 @@ public class character_script : MonoBehaviour
                 // Animation - Jump Up
                 animator.SetBool("isCharging", false);
                 animator.SetBool("isGrounded", false);
-                if (jumpHeight <= 2){
-                    jumpHeight = 2;
+                float jumpVelocityMagnitude = jumpHeight * 0.3f;
+                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
+                myRigidBody.velocity = jumpVelocity;
+                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
+                if (jumpHeight <= 4.5){
+                    jumpHeight = 4.5f;
+                    // /moveSpeed = 5f;
+                    Debug.Log("short Hop");
+                    jumpDirection = new Vector2(jumpHeight, jumpHeight);
+                    myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
                 }
                 // Animation - Jump Side
                 if (myRigidBody.velocity.x != 0){
                     animator.SetBool("isMoving", true);
                 }
-                float jumpVelocityMagnitude = jumpHeight * 0.3f;
-                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
-                myRigidBody.velocity = jumpVelocity;
-                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
+
                 Debug.Log("jumpDirection:" + jumpDirection);
+                Debug.Log(ForceMode2D.Impulse);
                 myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
 
                 jumpHeight = 0;
@@ -125,6 +131,10 @@ public class character_script : MonoBehaviour
             // Animation - Falling
             if(myRigidBody.velocity.y <= 0){
                 animator.SetBool("isFalling", true);
+                if(myRigidBody.velocity.y < -5f) {
+                    myRigidBody.velocity.Set(myRigidBody.velocity.x,-5f);
+                    myRigidBody.sharedMaterial = normalMat;
+                } // set max fallspeed
             }
             // Animation - Rising
             animator.SetBool("isGrounded", false);
