@@ -5,17 +5,19 @@ using UnityEngine;
 public class character_script : MonoBehaviour
 {
     // Private Variables
-    private float jumpTime;
-    private bool jumping;
-    private bool jumpCancelled;
     private bool isGrounded = false;
     private bool hitTop = false;
     // Public Variables
     public Rigidbody2D myRigidBody;
     public LayerMask groundMask;
     public SpriteRenderer characterRender;
-    public PhysicsMaterial2D bounce, normalMat;
     public Animator animator;
+    public BoxCollider2D boxCollider;
+    public PhysicsMaterial2D bounce, normalMat, slope;
+    public float wireCubeSizeBotX = 0.6f;
+    public float wireCubeSizeBotY = 0.25f;
+    public float wireCubeSizeTopX = 0.6f;
+    public float wireCubeSizeTopY = 0.25f;
     public float groundDist = 1f;
     public float moveSpeed = 7f;
     public float buttonTime = 0.5f;
@@ -25,10 +27,18 @@ public class character_script : MonoBehaviour
     public float dir = 0;
     public float moveInput;
     public float leftright;
+    public float slideSpeed = 10.0f;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Game Object's Components, Character is parent, Sprite is child
+        // Sprite is a child so it can be resized without modifying the rigidbody of the charcter
+        characterRender = GetComponentInChildren<SpriteRenderer>(); // Returns child's SpriteRenderer component
+        animator =  GetComponentInChildren<Animator>();             // Returns child's Animator component
+        myRigidBody = GetComponent<Rigidbody2D>();                  // Returns the Rigidbody 2D component
+        BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();  // Returns the BoxCollider 2D component
+        groundMask = LayerMask.GetMask("terrain");                  // Returns the groundMask as the "terrain"
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
         moveSpeed = 7f;
@@ -38,28 +48,48 @@ public class character_script : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Game Object's Components, Character is parent, Sprite is child
-        // Sprite is a child so it can be resized without modifying the rigidbody of the charcter
-        characterRender = GetComponentInChildren<SpriteRenderer>(); // Returns child's SpriteRenderer component
-        animator =  GetComponentInChildren<Animator>();             // Returns child's Animator component
-
-        Vector2 wireCubeSize = new Vector2(0.7f, 0.7f);
-        Vector2 wireCubeSizeTop = new Vector2(0.5f,0.5f);
+        Vector2 wireCubeSizeBot = new Vector2(wireCubeSizeBotX, wireCubeSizeBotY);
+        Vector2 wireCubeSizeTop = new Vector2(wireCubeSizeTopX,wireCubeSizeTopY);
         Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
         Vector2 wireCubePosTop = new Vector2(transform.position.x,transform.position.y + 0.5f);
-        isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSize, 0, groundMask);
+        isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, groundMask);
         hitTop = Physics2D.OverlapBox(wireCubePosTop, wireCubeSizeTop, 0, groundMask);
         // Debug.Log("isGrounded: " + isGrounded);
         // Debug.Log("hitHead: " + hitTop);
+        //Debug.Log("isGrounded: " + isGrounded);
+        //Debug.Log("hitHead: " + hitTop);
 
         float horizontalInput = Input.GetAxisRaw("Horizontal"); 
-
-        // On the ground
+        animator.SetFloat("isInAir", myRigidBody.velocity.y);
+        
         if (isGrounded){ //player can only use inputs if not jumping
+            animator.SetFloat("isMoving", Mathf.Abs(myRigidBody.velocity.x));
+            animator.SetBool("isGrounded", isGrounded);
             myRigidBody.sharedMaterial = normalMat;
-            // Animation - Land
-            animator.SetBool("isGrounded", true);
-            animator.SetBool("isFalling", false);
+            // Cast a ray down from the center of the character's collider to detect ground
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 1f, groundMask);
+            if (hit.collider != null) {
+                // Get the angle of the surface the character is standing on
+                float angle = Vector2.Angle(hit.normal, Vector2.up);
+                
+                // Check if the angle is greater than a certain threshold to determine if the character is on a slope
+                if (angle > 44.0f && angle < 46.0f) {
+                    // Set the character's movement to follow the slope
+                    animator.SetBool("isSliding", true);
+                    myRigidBody.sharedMaterial = slope;
+                    Vector2 slopeDirection = Vector2.Reflect(myRigidBody.velocity.normalized, hit.normal).normalized;
+                    myRigidBody.velocity = slopeDirection * slideSpeed;
+                    float slopeAngle = Mathf.Atan2(slopeDirection.y, slopeDirection.x) * Mathf.Rad2Deg;
+                    animator.transform.rotation = Quaternion.Euler(0f, 0f, slopeAngle);
+
+
+                    horizontalInput = 0;
+                } else {
+                    // Reset the character's rotation if they are not on a slope
+                    animator.SetBool("isSliding", false);
+                    animator.transform.rotation = Quaternion.identity;
+                }
+            }
             // Player presses/holds spacebar and starts charging the jump
             if (Input.GetKey(KeyCode.Space)) {
                 // Animation - Charging
@@ -75,48 +105,32 @@ public class character_script : MonoBehaviour
                 // Animation - Jump Up
                 animator.SetBool("isCharging", false);
                 animator.SetBool("isGrounded", false);
-                float jumpVelocityMagnitude = jumpHeight * 0.3f;
-                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
-                myRigidBody.velocity = jumpVelocity;
-                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
-                if (jumpHeight <= 4.5){
-                    jumpHeight = 4.5f;
-                    // /moveSpeed = 5f;
-                    Debug.Log("short Hop");
-                    jumpDirection = new Vector2(jumpHeight, jumpHeight);
-                    myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
+                if (jumpHeight <= 2){
+                    jumpHeight = 2;
                 }
                 // Animation - Jump Side
                 if (myRigidBody.velocity.x != 0){
                     animator.SetBool("isMoving", true);
                 }
-
+                float jumpVelocityMagnitude = jumpHeight * 0.3f;
+                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
+                myRigidBody.velocity = jumpVelocity;
+                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
                 Debug.Log("jumpDirection:" + jumpDirection);
-                Debug.Log(ForceMode2D.Impulse);
                 myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
-
                 jumpHeight = 0;
             } 
             // Player movement - right
             else if(myRigidBody.velocity.x > 0 + .001f || horizontalInput == 1) { 
                 gameObject.transform.localScale = new Vector3(1, 1, 1);
-                // Animation - Move Right
-                animator.SetBool("isMoving", true);
                 //characterRender.color = Color.cyan;
                 leftright = 0;      
             } 
             // Player movement - left
             else if(myRigidBody.velocity.x < 0 - .001f || horizontalInput == -1) {
                 gameObject.transform.localScale = new Vector3(-1, 1, 1);
-                // Animation - Move Left
-                animator.SetBool("isMoving", true);
                 //characterRender.color = Color.magenta;
                 leftright = 1;
-            }
-            // No buttons are pressed
-            else {
-                // Animation - Idle
-                animator.SetBool("isMoving", false);
             }
             if (!Input.GetKey(KeyCode.Space)){
                 myRigidBody.velocity = new Vector2(horizontalInput * moveSpeed, myRigidBody.velocity.y);
@@ -131,24 +145,20 @@ public class character_script : MonoBehaviour
             // Animation - Falling
             if(myRigidBody.velocity.y <= 0){
                 animator.SetBool("isFalling", true);
-                if(myRigidBody.velocity.y < -5f) {
-                    myRigidBody.velocity.Set(myRigidBody.velocity.x,-5f);
-                    myRigidBody.sharedMaterial = normalMat;
-                } // set max fallspeed
             }
             // Animation - Rising
-            animator.SetBool("isGrounded", false);
             animator.SetBool("isCharging", false);
+            animator.SetBool("isGrounded", isGrounded);
             //characterRender.color = Color.red;
         }
     }
 
     private void OnDrawGizmos() {
         Gizmos.color = isGrounded ? Color.blue : Color.red;
-        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - .5f),
-        new Vector2(.7f, .7f));
+        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - 0.5f),
+        new Vector2(wireCubeSizeBotX, wireCubeSizeBotY));
         Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x,gameObject.transform.position.y + 0.5f),
-        new Vector2(.5f,.5f));
+        new Vector2(wireCubeSizeTopX,wireCubeSizeTopY));
     }
 }
 
