@@ -15,8 +15,8 @@ public class character_script : MonoBehaviour
     public Animator animator;
     public BoxCollider2D boxCollider;
     public PhysicsMaterial2D bounce, normalMat;
-    public float wireCubeSizeBotX = 0.75f;
-    public float wireCubeSizeBotY = 0.4f;
+    public float wireCubeSizeBotX = 0.45f;
+    public float wireCubeSizeBotY = 0.5f;
     public float wireCubeSizeTopX = 0.6f;
     public float wireCubeSizeTopY = 0.25f;
     public float groundDist = 1.1f;
@@ -37,7 +37,7 @@ public class character_script : MonoBehaviour
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
         moveSpeed = 7f;
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 10;
     }
 
     // Update is called once per frame
@@ -98,14 +98,20 @@ public class character_script : MonoBehaviour
         } 
          // In the air
         else {
+             if(myRigidBody.velocity.y < -25f ) {
+                myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, -25);
+                // Debug.Log("Max fall speed: " + myRigidBody.velocity.y);
+            }
             if(!hitTop)
             {
                 if (slopeHit != null)
                 {
                     myRigidBody.sharedMaterial = normalMat;
+                    Debug.Log("normal");
                 }
                 else
                 {
+                    Debug.Log("bounce");
                     myRigidBody.sharedMaterial = bounce;
                 }
             }
@@ -118,9 +124,9 @@ public class character_script : MonoBehaviour
 
     private void OnDrawGizmos() {
         Gizmos.color = isGrounded ? Color.blue : Color.red;
-        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - 0.5f),
+        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - 0.7f),
         new Vector2(wireCubeSizeBotX, wireCubeSizeBotY));
-        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x,gameObject.transform.position.y + 0.5f),
+        Gizmos.DrawWireCube(new Vector2(gameObject.transform.position.x,gameObject.transform.position.y + 0.7f),
         new Vector2(wireCubeSizeTopX,wireCubeSizeTopY));
     }
 
@@ -132,14 +138,15 @@ public class character_script : MonoBehaviour
     boxCollider = GetComponent<BoxCollider2D>();
     groundMask = LayerMask.GetMask("terrain");
     slopeMask = LayerMask.GetMask("slopes");
+    bounce.bounciness = .5f;
     }
 
     private void CheckLayerMask()
     {
     Vector2 wireCubeSizeBot = new Vector2(wireCubeSizeBotX, wireCubeSizeBotY);
     Vector2 wireCubeSizeTop = new Vector2(wireCubeSizeTopX, wireCubeSizeTopY);
-    Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.5f);
-    Vector2 wireCubePosTop = new Vector2(transform.position.x, transform.position.y + 0.5f);
+    Vector2 wireCubePos = new Vector2(transform.position.x, transform.position.y - 0.7f);
+    Vector2 wireCubePosTop = new Vector2(transform.position.x, transform.position.y + 0.7f);
     isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, groundMask) ||
                  Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, slopeMask);
     hitTop = Physics2D.OverlapBox(wireCubePosTop, wireCubeSizeTop, 0, groundMask);
