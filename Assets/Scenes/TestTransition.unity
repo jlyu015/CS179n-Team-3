@@ -1762,7 +1762,7 @@ GameObject:
   - component: {fileID: 711024895}
   - component: {fileID: 711024894}
   m_Layer: 3
-  m_Name: Ground
+  m_Name: Terrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9624,6 +9624,8 @@ MonoBehaviour:
   wireCubeSizeBotY: 0.25
   wireCubeSizeTopX: 0.6
   wireCubeSizeTopY: 0.25
+  wireCubesSizeSideX: 0.45
+  wireCubeSizeSideY: 0.1
   groundDist: 0.1
   moveSpeed: 10
   buttonTime: 0.5
@@ -10084,7 +10086,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1493619929}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.53, y: 5.76, z: 0}
+  m_LocalPosition: {x: 12.3, y: 17, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
