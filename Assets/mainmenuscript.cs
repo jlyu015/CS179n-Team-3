@@ -20,7 +20,7 @@ public class mainmenuscript : MonoBehaviour
     public void NewGame()
     {
         // Set the scene name
-        sceneName = "testTransition";
+        sceneName = "endgamescene";
 
         // Load the game scene
         SceneManager.LoadScene(sceneName);
@@ -52,7 +52,7 @@ public void LoadGame()
         float zPos = PlayerPrefs.GetFloat("zPos");
 
         // Load the game scene
-        sceneName = "testTransition";
+        sceneName = "endgamescene";
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 
         // Find the spawnObject game object in the popup scene
