@@ -27,7 +27,7 @@ public class windScript : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.color = isCharacterInZone ? Color.red : Color.cyan;
         Gizmos.DrawWireCube(transform.position, transform.localScale);
