@@ -12,13 +12,17 @@ public class endgamescript : MonoBehaviour
 
     private bool gameEnded = false;
 
+    void Start(){
+        playerCharacter = GameObject.Find("Circle");
+        squareObject = GameObject.Find("Square");
+    }
     void Update()
     {
         if (!gameEnded && IsPlayerInBounds())
         {
             gameEnded = true;
             StartCoroutine(EndGameCoroutine());
-        }
+         }
     }
 
     private bool IsPlayerInBounds()

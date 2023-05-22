@@ -5,13 +5,19 @@ using UnityEngine;
 public class character_script : MonoBehaviour
 {
     // Private Variables
+    private float _vertical;
+    private float _horizontal;
+    public float climbSpeed = 4;
+    private bool _isClimbing;
+    private HashSet<GameObject> ladders = new HashSet<GameObject>(); //check if multiple ladders are in the collision area
+    //above variables are for ladder
     private bool isGrounded = false;
     private bool hitTop = false;
     private bool hitSide = false;
+    private bool onIce = false;
     // Public Variables
     public Rigidbody2D myRigidBody;
-    public LayerMask groundMask;
-    public LayerMask slopeMask;
+    public LayerMask groundMask, slopeMask, iceMask;
     public SpriteRenderer characterRender;
     public Animator animator;
     public BoxCollider2D boxCollider;
@@ -31,7 +37,7 @@ public class character_script : MonoBehaviour
     public float dir = 0;
     public float moveInput;
     public float leftright;
-    public float slideSpeed = 15.0f;
+    public float slideSpeed = 7.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -61,7 +67,7 @@ public class character_script : MonoBehaviour
                 // Animation - Charging
                 animator.SetBool("isCharging", true);
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
-                if (jumpHeight <= 11.5){
+                if (jumpHeight <= 15.5){
                     jumpHeight += .30f;
                 }
                 //characterRender.color = Color.blue;
@@ -99,9 +105,37 @@ public class character_script : MonoBehaviour
             }
        
         } 
-         // In the air
+        // Player is sliding on ice
+        else if (onIce) {
+            // Player presses/holds spacebar and starts charging the jump
+            if (Input.GetKey(KeyCode.Space)) {
+                // Animation - Charging
+                animator.SetBool("isCharging", true);
+                myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, myRigidBody.velocity.y);
+                if (jumpHeight <= 11.5) {
+                    jumpHeight += .30f;
+                }
+                //characterRender.color = Color.blue;
+            }
+            // Player releases spacebar and jumps
+            else if (Input.GetKeyUp(KeyCode.Space)) {
+                // Animation - Jump Up
+                animator.SetBool("isCharging", true);
+                animator.SetBool("isGrounded", isGrounded);
+                if (jumpHeight <= 5) {
+                    jumpHeight = 5;
+                }
+                float jumpVelocityMagnitude = jumpHeight * 0.3f;
+                Vector2 jumpVelocity = new Vector2(myRigidBody.velocity.x, jumpVelocityMagnitude);
+                myRigidBody.velocity = jumpVelocity;
+                Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
+                myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
+                jumpHeight = 0;
+            }
+        }
+        // In the air
         else {
-             if(myRigidBody.velocity.y < -20f ) {
+            if(myRigidBody.velocity.y < -20f ) {
                 myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, -20f);
                 // Debug.Log("Max fall speed: " + myRigidBody.velocity.y);
             }
@@ -115,9 +149,11 @@ public class character_script : MonoBehaviour
                 else
                 {
                     if(hitSide) {
+                        animator.SetBool("hitSide", hitSide);
                         Debug.Log("bounce");
                         myRigidBody.sharedMaterial = bounce;
                     }
+                    animator.SetBool("hitSide", hitSide);
                     
                 }
             }
@@ -126,6 +162,15 @@ public class character_script : MonoBehaviour
             animator.SetBool("isGrounded", isGrounded);
             //characterRender.color = Color.red;
         }
+        _horizontal = Input.GetAxisRaw("Horizontal"); //ladder movement
+        _vertical = Input.GetAxisRaw("Vertical"); //ladder
+        if (ladders.Count > 0 && Mathf.Abs(_vertical) > 0f) {
+            _isClimbing = true;
+        }
+        else if(ladders.Count <= 0) {
+            _isClimbing = false;
+        }
+
     }
 
     private void OnDrawGizmos() {
@@ -149,6 +194,7 @@ public class character_script : MonoBehaviour
     boxCollider = GetComponent<BoxCollider2D>();
     groundMask = LayerMask.GetMask("terrain");
     slopeMask = LayerMask.GetMask("slopes");
+    iceMask = LayerMask.GetMask("ice");
     bounce.bounciness = .5f;
     wireCubeSizeBotX = 0.35f;
     wireCubeSizeBotY = 0.7f;
@@ -167,6 +213,7 @@ public class character_script : MonoBehaviour
     Vector2 wireCubePosRight = new Vector2(gameObject.transform.position.x + .35f, gameObject.transform.position.y);
     isGrounded = Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, groundMask) ||
                  Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, slopeMask);
+    onIce = Physics2D.OverlapBox(wireCubePos, wireCubeSizeBot, 0, iceMask);
     hitTop = Physics2D.OverlapBox(wireCubePosTop, wireCubeSizeTop, 0, groundMask);
 
     hitSide = Physics2D.OverlapBox(wireCubePosLeft, wireCubeSizeSide, 0, groundMask) || 
@@ -224,5 +271,28 @@ public class character_script : MonoBehaviour
             Debug.DrawRay(transform.position, Vector2.down * slopeDist, Color.red);
         }
         return hit.collider;
+    }
+
+    private void FixedUpdate() { // for ladders
+        if(_isClimbing) {
+            myRigidBody.gravityScale = 0f;
+            myRigidBody.velocity = new Vector2(_horizontal * moveSpeed, _vertical * climbSpeed);
+        }
+        else {
+            myRigidBody.gravityScale = 3f;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D col) { //this and ontriggerexit are for ladder
+        if(col.CompareTag("ladder")) {
+            ladders.Add(col.gameObject);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D col) {
+        if(col.CompareTag("ladder")) {
+            ladders.Remove(col.gameObject);
+
+        }
     }
 }
