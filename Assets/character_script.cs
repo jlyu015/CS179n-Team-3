@@ -29,7 +29,8 @@ public class character_script : MonoBehaviour
     public float wireCubesSizeSideX = .45f;
     public float wireCubeSizeSideY = .1f;
     public float groundDist = 1.1f;
-    public float moveSpeed = 7f;
+    public static float moveSpeed = 7f;
+    public static float horizontalInput = 0.0f;
     public float buttonTime = 0.5f;
     public float jumpHeight = 10;
     public float jumpLength = 0;
@@ -54,7 +55,7 @@ public class character_script : MonoBehaviour
     {
         CheckLayerMask();
 
-        float horizontalInput = Input.GetAxisRaw("Horizontal"); 
+        horizontalInput = Input.GetAxisRaw("Horizontal"); 
         animator.SetFloat("isInAir", myRigidBody.velocity.y);
         // Check if the character is on a slope
         Collider2D slopeHit = SlopeCheck(horizontalInput);
