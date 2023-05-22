@@ -5,6 +5,12 @@ using UnityEngine;
 public class character_script : MonoBehaviour
 {
     // Private Variables
+    private float _vertical;
+    private float _horizontal;
+    public float climbSpeed = 4;
+    private bool _isClimbing;
+    private HashSet<GameObject> ladders = new HashSet<GameObject>(); //check if multiple ladders are in the collision area
+    //above variables are for ladder
     private bool isGrounded = false;
     private bool hitTop = false;
     private bool hitSide = false;
@@ -61,7 +67,7 @@ public class character_script : MonoBehaviour
                 // Animation - Charging
                 animator.SetBool("isCharging", true);
                 myRigidBody.velocity = new Vector2(0, myRigidBody.velocity.y);
-                if (jumpHeight <= 11.5){
+                if (jumpHeight <= 15.5){
                     jumpHeight += .30f;
                 }
                 //characterRender.color = Color.blue;
@@ -126,6 +132,15 @@ public class character_script : MonoBehaviour
             animator.SetBool("isGrounded", isGrounded);
             //characterRender.color = Color.red;
         }
+        _horizontal = Input.GetAxisRaw("Horizontal"); //ladder movement
+        _vertical = Input.GetAxisRaw("Vertical"); //ladder
+        if (ladders.Count > 0 && Mathf.Abs(_vertical) > 0f) {
+            _isClimbing = true;
+        }
+        else if(ladders.Count <= 0) {
+            _isClimbing = false;
+        }
+
     }
 
     private void OnDrawGizmos() {
@@ -224,5 +239,28 @@ public class character_script : MonoBehaviour
             Debug.DrawRay(transform.position, Vector2.down * slopeDist, Color.red);
         }
         return hit.collider;
+    }
+
+    private void FixedUpdate() { // for ladders
+        if(_isClimbing) {
+            myRigidBody.gravityScale = 0f;
+            myRigidBody.velocity = new Vector2(_horizontal * moveSpeed, _vertical * climbSpeed);
+        }
+        else {
+            myRigidBody.gravityScale = 3f;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D col) { //this and ontriggerexit are for ladder
+        if(col.CompareTag("ladder")) {
+            ladders.Add(col.gameObject);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D col) {
+        if(col.CompareTag("ladder")) {
+            ladders.Remove(col.gameObject);
+
+        }
     }
 }
