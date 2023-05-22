@@ -129,7 +129,7 @@ public class character_script : MonoBehaviour
         }
         // In the air
         else {
-             if(myRigidBody.velocity.y < -20f ) {
+            if(myRigidBody.velocity.y < -20f ) {
                 myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, -20f);
                 // Debug.Log("Max fall speed: " + myRigidBody.velocity.y);
             }
@@ -143,9 +143,11 @@ public class character_script : MonoBehaviour
                 else
                 {
                     if(hitSide) {
+                        animator.SetBool("hitSide", hitSide);
                         Debug.Log("bounce");
                         myRigidBody.sharedMaterial = bounce;
                     }
+                    animator.SetBool("hitSide", hitSide);
                     
                 }
             }

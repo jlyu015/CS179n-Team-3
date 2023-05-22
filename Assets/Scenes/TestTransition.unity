@@ -17235,10 +17235,13 @@ MonoBehaviour:
   myRigidBody: {fileID: 1288673404}
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   slopeMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
+  iceMask:
+    serializedVersion: 2
+    m_Bits: 128
   characterRender: {fileID: 680299956}
   animator: {fileID: 680299957}
   boxCollider: {fileID: 0}
