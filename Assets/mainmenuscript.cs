@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 public class mainmenuscript : MonoBehaviour
 {
     private string sceneName;
-
     private void OnEnable()
     {
         // Subscribe to the sceneLoaded event
