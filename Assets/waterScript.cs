@@ -5,11 +5,13 @@ using UnityEngine;
 public class waterScript : MonoBehaviour
 {
     private bool inWater = false;
-    private float hi = 0.0f;
-    private float ms = 0.0f;
+    private float hi = 0.0f; // Horizontal Input
+    private float ms = 0.0f; // Move Speed
     public LayerMask waterMask;
     public Rigidbody2D myRigidBody;
     public BoxCollider2D boxCollider;
+    public float waterSpeedX = 0.50f; // Lower X-direction speed 
+    public float waterSpeedY = 0.90f; // Lower Y-direction speed
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +26,7 @@ public class waterScript : MonoBehaviour
         if(inWater){
             hi = character_script.horizontalInput;
             ms = character_script.moveSpeed;
-            myRigidBody.velocity = new Vector2((hi * ms) * 0.50f, myRigidBody.velocity.y * 0.90f);
+            myRigidBody.velocity = new Vector2((hi * ms) * waterSpeedX, myRigidBody.velocity.y * waterSpeedY);
             Debug.Log("in water, speed: " + myRigidBody.velocity.x);
         }
     }
