@@ -6,7 +6,7 @@ TagManager:
   tags:
   - ladder
   - water
-  - background1
+  - lava
   layers:
   - Default
   - TransparentFX
@@ -16,7 +16,7 @@ TagManager:
   - UI
   - slopes
   - ice
-  - water
+  - 
   - 
   - 
   - 
