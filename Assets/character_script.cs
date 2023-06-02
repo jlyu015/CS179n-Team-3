@@ -5,6 +5,8 @@ using UnityEngine;
 public class character_script : MonoBehaviour
 {
     // Private Variables
+    public AudioClip jumpSoundClip; // Reference to the jump sound clip
+    private AudioSource jumpSoundSource; // Reference to the AudioSource component
     private float _vertical;
     private float _horizontal;
     public float climbSpeed = 4;
@@ -43,6 +45,15 @@ public class character_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameObject audioSourceObject = new GameObject("JumpSoundSource");
+        audioSourceObject.transform.parent = transform;
+
+        // Attach an AudioSource component to the new GameObject
+        jumpSoundSource = audioSourceObject.AddComponent<AudioSource>();
+
+        // Assign the jump sound clip to the AudioSource
+        jumpSoundSource.clip = jumpSoundClip;
+
         InitializeComponents();
         gameObject.name = "Hop Queen";  // Our Queen
         myRigidBody.gravityScale = 3;   // Gravity
@@ -88,6 +99,13 @@ public class character_script : MonoBehaviour
                 //Debug.Log("jumpDirection:" + jumpDirection);
                 myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
                 jumpHeight = 0;
+                //jump sound below
+                // Adjust the volume of the jump sound
+                jumpSoundSource.volume = 0.5f; // Set the volume to 50% (adjust as needed)
+
+                // Play the jump sound
+                jumpSoundSource.Play();
+
             } 
             // Player movement - right
             else if(myRigidBody.velocity.x > 0 + .001f || horizontalInput == 1) { 
