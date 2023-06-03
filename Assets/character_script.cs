@@ -145,7 +145,7 @@ public class character_script : MonoBehaviour
                     jumpHeight = 5;
                 }
                 float jumpVelocityMagnitude = jumpHeight * 0.3f;
-                Vector2 jumpVelocity = new Vector2(myRigidBody.velocity.x, jumpVelocityMagnitude);
+                Vector2 jumpVelocity = new Vector2(jumpVelocityMagnitude * horizontalInput, jumpVelocityMagnitude);
                 myRigidBody.velocity = jumpVelocity;
                 Vector2 jumpDirection = new Vector2(jumpLength, jumpHeight);
                 myRigidBody.AddForce(jumpDirection, ForceMode2D.Impulse);
